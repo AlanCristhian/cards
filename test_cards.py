@@ -83,6 +83,7 @@ class RulesSuite(unittest.TestCase):
 
     def test_player_order_shuffle(self):
         self.round.shuffle_players.assert_called()
+        self.assertEqual(len(self.round.turns), 2)
 
 
 if __name__ == '__main__':

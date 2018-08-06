@@ -46,12 +46,11 @@ class Player:
 class Round:
     player1: Player
     player2: Player
+    turns: collections.deque = dataclasses.field(init=False)
 
     def initialize(self):
         self.shuffle_each_card_stack()
         self.fill_each_hand()
-        self.turns = collections.deque(maxlen=2)
-        self.turns.extend((self.player1, self.player2))
         self.shuffle_players()
 
     def shuffle_each_card_stack(self):
@@ -67,4 +66,6 @@ class Round:
             self.player2.chip_hand.append(self.player2.chip_stack.pop())
 
     def shuffle_players(self):
+        self.turns = collections.deque(maxlen=2)
+        self.turns.extend((self.player1, self.player2))
         random.shuffle(self.turns)
