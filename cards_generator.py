@@ -1,4 +1,4 @@
-from itertools import product, filterfalse
+from itertools import product, filterfalse, chain
 import datetime
 
 
@@ -63,19 +63,18 @@ CURRENCIES = [
 ]
 
 
-_, _, _, h, m, s, *_ = tuple(datetime.datetime.now().timetuple())
-
-
 def append_cards():
     for obj, target, place in product(OBJECTS, TARGETS, PLACES):
         if  not (obj == "Null Card" and target == "Player" and place != "Death Stack") \
-        and not (target == "Player" and place == "Death Stack") \
+        and not (target == "Player" and place != "Life Stack") \
         and not (obj != "Null Card" and target == "Opponent") \
-        and not (target == "Opponent" and place == "Death Stack"):
+        and not (target == "Opponent" and place != "Life Stack"):
             if obj in ("Turn", "Health Chip"):
-                yield f"Append a {obj} on {target}.\n"
+                yield f"+Append a {obj} on {target}.\n"
                 continue
-            yield f"Append a {obj} on {target} {place}.\n"
+            yield f"+Append a {obj} on {target} {place}.\n"
+        else:
+            yield f"-Append a {obj} on {target} {place}.\n"
 
 
 def remove_cards():
@@ -85,9 +84,11 @@ def remove_cards():
         and not (place == "Death Stack") \
         and not (obj in ("Null Card", "Turn") and target == "Opponent"):
             if obj == "Health Chip":
-                yield f"Remove a {obj} on {target}.\n"
+                yield f"+Remove a {obj} on {target}.\n"
                 continue
-            yield f"Remove a {obj} on {target} {place}.\n"
+            yield f"+Remove a {obj} on {target} {place}.\n"
+        else:
+            yield f"-Remove a {obj} on {target} {place}.\n"
 
 
 def move_cards():
@@ -106,15 +107,33 @@ def move_cards():
         and not (target1 == target2 and place1 == place2):
             if obj == "Health Chip":
                 if target1 == "Opponent" and target2 == "Player":
-                    yield f"Move a {obj} from {target1} to {target2}.\n"
+                    yield f"+Move a {obj} from {target1} to {target2}.\n"
                 continue
-            yield f"Move a {obj} from {target1} {place1} to {target2} {place2}.\n"
+            yield f"+Move a {obj} from {target1} {place1} to {target2} {place2}.\n"
+        else:
+            yield f"-Move a {obj} from {target1} {place1} to {target2} {place2}.\n"
 
 
-with open(f"included_cards_{h}_{m}_{s}.txt", "w") as file:
-    for card in unique_everseen(append_cards(), str.lower):
-        file.write(card)
-    for card in unique_everseen(remove_cards(), str.lower):
-        file.write(card)
-    for card in unique_everseen(move_cards(), str.lower):
-        file.write(card)
+def all_cards():
+    with open(f"all_cards.diff", "w") as file:
+        all_actions = chain(append_cards(), remove_cards(), move_cards())
+        for card_description in unique_everseen(all_actions, str.lower):
+            file.write(card_description)
+
+
+def valid_cards(timestamp=False):
+    if timestamp:
+        _, _, _, h, m, s, *_ = tuple(datetime.datetime.now().timetuple())
+        filename = f"valid_cards_{h}_{m}_{s}.txt"
+    else:
+        filename = "valid_cards.txt"
+    with open(filename, "w") as file:
+        all_actions = chain(append_cards(), remove_cards(), move_cards())
+        for card_description in unique_everseen(all_actions, str.lower):
+            if card_description.startswith("+"):
+                file.write(card_description[1:])
+
+
+if __name__ == '__main__':
+    all_cards()
+    valid_cards(timestamp=0)

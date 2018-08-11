@@ -5,10 +5,9 @@ import uuid
 
 import objects
 import cards
-import stacks
 
 
-CARD_STACK = objects.Stack([cards.HARM, cards.HARM, cards.HARM, cards.HARM,
+life_stack = objects.Stack([cards.HARM, cards.HARM, cards.HARM, cards.HARM,
                             cards.HEAL, cards.HEAL])
 
 
@@ -31,12 +30,10 @@ class HandSuite(unittest.TestCase):
 
 class PlayerSuite(unittest.TestCase):
     def test_player(self):
-        player = objects.Player(name="user1", card_stack=objects.Stack(),
-                                chip_stack=stacks.INITIAL_CHIPS)
+        player = objects.Player(name="user1", life_stack=objects.Stack())
         self.assertIsInstance(player, objects.Player)
         self.assertIsInstance(player.name, str)
-        self.assertIsInstance(player.card_stack, objects.Stack)
-        self.assertIsInstance(player.chip_stack, objects.Stack)
+        self.assertIsInstance(player.life_stack, objects.Stack)
 
 
 class CardSuite(unittest.TestCase):
@@ -51,15 +48,11 @@ class CardSuite(unittest.TestCase):
 
 class RulesSuite(unittest.TestCase):
     @classmethod
-    def setUp(cls):
-        player1 = objects.Player(name="player1", card_stack=objects.Stack(),
-                                 chip_stack=stacks.INITIAL_CHIPS)
-        player1.card_stack.extend(CARD_STACK)
-        player1.chip_stack.extend(stacks.INITIAL_CHIPS)
-        player2 = objects.Player(name="player2", card_stack=objects.Stack(),
-                                 chip_stack=stacks.INITIAL_CHIPS)
-        player2.card_stack.extend(CARD_STACK)
-        player2.chip_stack.extend(stacks.INITIAL_CHIPS)
+    def setUpClass(cls):
+        player1 = objects.Player(name="player1", life_stack=objects.Stack())
+        player1.life_stack.extend(life_stack)
+        player2 = objects.Player(name="player2", life_stack=objects.Stack())
+        player2.life_stack.extend(life_stack)
         cls.round = objects.Round(player1=player1, player2=player2)
         cls.round.shuffle_players = mock.Mock(
             side_effect=cls.round.shuffle_players)
@@ -70,16 +63,18 @@ class RulesSuite(unittest.TestCase):
         self.assertIsInstance(self.round.player2, objects.Player)
 
     def test_shuffle(self):
-        self.assertNotEqual(self.round.player1.card_stack, CARD_STACK)
-        self.assertNotEqual(self.round.player2.chip_stack, CARD_STACK)
+        self.assertNotEqual(self.round.player1.life_stack, life_stack)
+        self.assertNotEqual(self.round.player2.life_stack, life_stack)
 
-    def test_card_hand_size(self):
-        self.assertEqual(len(self.round.player1.card_hand), 5)
-        self.assertEqual(len(self.round.player2.card_hand), 5)
+    def test_jocker(self):
+        player1_cards = self.round.player1.life_stack + self.round.player1.hand
+        player2_cards = self.round.player2.life_stack + self.round.player2.hand
+        self.assertIn(cards.JOKER, player1_cards)
+        self.assertIn(cards.JOKER, player2_cards)
 
-    def test_chip_hand_size(self):
-        self.assertEqual(len(self.round.player1.chip_hand), 3)
-        self.assertEqual(len(self.round.player2.chip_hand), 3)
+    def test_hand_size(self):
+        self.assertEqual(len(self.round.player1.hand), 5)
+        self.assertEqual(len(self.round.player2.hand), 5)
 
     def test_player_order_shuffle(self):
         self.round.shuffle_players.assert_called()
