@@ -1,0 +1,15 @@
+Append a Null Card on Opponent Life Stack.
+Append a Null Card on Opponent Hand.
+Append a Joker on Player Life Stack.
+Append a Joker on Player Hand.
+Append a Card on Player Life Stack.
+Append a Card on Player Hand.
+Append a Turn on Player.
+Append a Health Chip on Player.
+Remove a Health Chip on Opponent.
+Move a Card from Player Death Stack to Player Life Stack.
+Move a Card from Player Hand to Player Death Stack.
+Move a Card from Opponent Hand to Player Life Stack.
+Move a Card from Opponent Hand to Player Hand.
+Move a Card from Opponent Hand to Opponent Death Stack.
+Move a Health Chip from Opponent to Player.
