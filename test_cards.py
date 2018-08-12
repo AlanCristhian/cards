@@ -64,12 +64,6 @@ class RulesSuite(unittest.TestCase):
         self.assertNotEqual(self.round.player1.life_stack, life_stack)
         self.assertNotEqual(self.round.player2.life_stack, life_stack)
 
-    def test_jocker(self):
-        player1_cards = self.round.player1.life_stack + self.round.player1.hand
-        player2_cards = self.round.player2.life_stack + self.round.player2.hand
-        self.assertIn(cards.JOKER, player1_cards)
-        self.assertIn(cards.JOKER, player2_cards)
-
     def test_hand_size(self):
         self.assertEqual(len(self.round.player1.hand), 5)
         self.assertEqual(len(self.round.player2.hand), 5)

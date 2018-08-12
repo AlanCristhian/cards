@@ -37,14 +37,9 @@ class Round:
     turns: Turn = dataclasses.field(init=False)
 
     def initialize(self):
-        self.add_joker()
         self.shuffle_each_life_stack()
         self.fill_each_hand()
         self.shuffle_players()
-
-    def add_joker(self):
-        self.player1.life_stack.append(cards.JOKER)
-        self.player2.life_stack.append(cards.JOKER)
 
     def shuffle_each_life_stack(self):
         random.shuffle(self.player1.life_stack)

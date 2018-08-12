@@ -52,8 +52,3 @@ Crop = Card(
 KILL = Card(
     name="Kill",
     description="Move a Card from Opponent Hand to Opponent Death Stack.")
-
-
-JOKER = Card(
-    name="Joker",
-    description="Represent other existing card.")
