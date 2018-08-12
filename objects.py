@@ -1,20 +1,8 @@
-import dataclasses
 import collections
-import uuid
 import random
-from typing import List
+import dataclasses
 
-
-@dataclasses.dataclass
-class Card:
-    name: str
-    description: str
-    identifier: int = dataclasses.field(init=False)
-    value: int = 0
-
-    def __post_init__(self):
-        self.identifier = uuid.uuid4()
-        self.description = self.description.format(x=self.value)
+import cards
 
 
 class Box:
@@ -55,7 +43,6 @@ class Round:
         self.shuffle_players()
 
     def add_joker(self):
-        import cards
         self.player1.life_stack.append(cards.JOKER)
         self.player2.life_stack.append(cards.JOKER)
 

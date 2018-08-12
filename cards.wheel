@@ -1,0 +1,8 @@
+[wheel]
+number = 9
+start = 27
+saturation = 25
+luminosity = 75
+background = white
+outline = 0
+color_space = JMh

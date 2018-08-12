@@ -38,12 +38,10 @@ class PlayerSuite(unittest.TestCase):
 
 class CardSuite(unittest.TestCase):
     def test_card_instance(self):
-        card = objects.Card(name="test", description="Test {x}", value=10)
-        self.assertIsInstance(card, objects.Card)
+        card = cards.Card(name="test", description="Test 10")
+        self.assertIsInstance(card, cards.Card)
         self.assertEqual(card.name, "test")
         self.assertEqual(card.description, "Test 10")
-        self.assertEqual(card.value, 10)
-        self.assertIsInstance(card.identifier, uuid.UUID)
 
 
 class RulesSuite(unittest.TestCase):
