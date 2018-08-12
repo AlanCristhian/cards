@@ -4,11 +4,10 @@ import collections
 import uuid
 
 import objects
-import cards
 
 
-life_stack = objects.Stack([cards.HARM, cards.HARM, cards.HARM, cards.HARM,
-                            cards.HEAL, cards.HEAL])
+life_stack = objects.Stack([objects.HARM, objects.HARM, objects.HARM,
+                            objects.HARM, objects.HEAL, objects.HEAL])
 
 
 class BoxSuite(unittest.TestCase):
@@ -38,8 +37,8 @@ class PlayerSuite(unittest.TestCase):
 
 class CardSuite(unittest.TestCase):
     def test_card_instance(self):
-        card = cards.Card(name="test", description="Test 10")
-        self.assertIsInstance(card, cards.Card)
+        card = objects.Card(name="test", description="Test 10")
+        self.assertIsInstance(card, objects.Card)
         self.assertEqual(card.name, "test")
         self.assertEqual(card.description, "Test 10")
 
