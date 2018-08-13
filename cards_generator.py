@@ -20,44 +20,44 @@ def unique_everseen(iterable, key=None):
                 yield element
 
 def append_cards():
-    OBJECTS = ["Health Chip", "Turn"]
+    ITEMS = ["Health Chip", "Turn"]
     OWNERS = ["Player"]
-    PLACES = ["Chip Stack"]
-    for obj, owner, place in product(OBJECTS, OWNERS, PLACES):
-        if obj == "Turn":
-            yield f"+Append a {obj} on {owner}.\n"
+    STACKS = ["Chip Stack"]
+    for item, owner, stack in product(ITEMS, OWNERS, STACKS):
+        if item == "Turn":
+            yield f"+Append a {item} on {owner}.\n"
         else:
-            yield f"+Append a {obj} on {owner} {place}.\n"
+            yield f"+Append a {item} on {owner} {stack}.\n"
 
 
 def remove_cards():
-    OBJECTS = ["Health Chip"]
+    ITEMS = ["Health Chip"]
     OWNERS = ["Opponent"]
-    PLACES = ["Chip Stack"]
-    for obj, owner, place in product(OBJECTS, OWNERS, PLACES):
-        yield f"+Remove a {obj} on {owner} {place}.\n"
+    STACKS = ["Chip Stack"]
+    for item, owner, stack in product(ITEMS, OWNERS, STACKS):
+        yield f"+Remove a {item} on {owner} {stack}.\n"
 
 
 def move_cards():
-    OBJECTS = ["Health Chip", "Card"]
+    ITEMS = ["Health Chip", "Card"]
     OWNERS = ["Player", "Opponent"]
-    PLACES = ["Chip Stack", "Life Stack", "Death Stack", "Hand"]
+    STACKS = ["Chip Stack", "Life Stack", "Death Stack", "Hand"]
     CARD_STACKS = ["Life Stack", "Death Stack", "Hand"]
-    for obj, owner1, place1, owner2, place2 in product(OBJECTS, OWNERS, PLACES, OWNERS, PLACES):
-        if not (owner1 == owner2 and place1 == place2) \
-        and not (obj == "Card" and "Chip Stack" in (place1, place2)) \
-        and not (obj == "Health Chip" and place1 in CARD_STACKS) \
-        and not (obj == "Health Chip" and place2 in CARD_STACKS) \
-        and not (owner1 == "Player" and place2 == "Death Stack") \
-        and not (owner1 == "Player" and place1 == "Hand" and place2 in CARD_STACKS) \
-        and not (owner1 == "Opponent" and place1 in ("Life Stack", "Death Stack")) \
-        and not ((owner1, place1) == ("Opponent", "Hand") and (owner2, place2) == ("Player", "Death Stack")) \
-        and not ((owner1, place1) == ("Player", "Death Stack") and (owner2, place2) == ("Player", "Hand")) \
-        and not (owner1 == "Opponent" and (owner2, place2) == ("Player", "Hand")) \
+    for item, owner1, stack1, owner2, stack2 in product(ITEMS, OWNERS, STACKS, OWNERS, STACKS):
+        if not (owner1 == owner2 and stack1 == stack2) \
+        and not (item == "Card" and "Chip Stack" in (stack1, stack2)) \
+        and not (item == "Health Chip" and stack1 in CARD_STACKS) \
+        and not (item == "Health Chip" and stack2 in CARD_STACKS) \
+        and not (owner1 == "Player" and stack2 == "Death Stack") \
+        and not (owner1 == "Player" and stack1 == "Hand" and stack2 in CARD_STACKS) \
+        and not (owner1 == "Opponent" and stack1 in ("Life Stack", "Death Stack")) \
+        and not ((owner1, stack1) == ("Opponent", "Hand") and (owner2, stack2) == ("Player", "Death Stack")) \
+        and not ((owner1, stack1) == ("Player", "Death Stack") and (owner2, stack2) == ("Player", "Hand")) \
+        and not (owner1 == "Opponent" and (owner2, stack2) == ("Player", "Hand")) \
         and not (owner1 == "Player" and owner2 == "Opponent"):
-            yield f"+Move a {obj} from {owner1} {place1} to {owner2} {place2}.\n"
+            yield f"+Move a {item} from {owner1} {stack1} to {owner2} {stack2}.\n"
         else:
-            yield f"-Move a {obj} from {owner1} {place1} to {owner2} {place2}.\n"
+            yield f"-Move a {item} from {owner1} {stack1} to {owner2} {stack2}.\n"
 
 
 def all_cards():
