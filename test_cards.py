@@ -1,75 +1,99 @@
-import unittest
+from typing import List
 from unittest import mock
 import collections
-import uuid
+import unittest
 
 import objects
 
 
-life_stack = objects.Stack([objects.HARM, objects.HARM, objects.HARM,
-                            objects.HARM, objects.HEAL, objects.HEAL])
-
-
-class BoxSuite(unittest.TestCase):
-    def test_box_instance(self):
-        box = objects.Box()
+class ChipSuite(unittest.TestCase):
+    def test_chip_instance(self) -> None:
+        chip = objects.Chip()
 
 
 class StackSuite(unittest.TestCase):
-    def text_stack_instance(self):
+    def test_stack_instance(self) -> None:
         stack = objects.Stack()
         self.assertIsInstance(stack, objects.Stack)
         self.assertIsInstance(stack, collections.deque)
 
 
 class HandSuite(unittest.TestCase):
-    def test_hand_instance(self):
+    def test_hand_instance(self) -> None:
         hand = objects.Hand()
+        self.assertIsInstance(hand, collections.deque)
 
 
-class PlayerSuite(unittest.TestCase):
-    def test_player(self):
-        player = objects.Player(name="user1", life_stack=objects.Stack())
-        self.assertIsInstance(player, objects.Player)
-        self.assertIsInstance(player.name, str)
-        self.assertIsInstance(player.life_stack, objects.Stack)
+class TurnSuite(unittest.TestCase):
+    def test_turn_instance(self) -> None:
+        turn = objects.Turn()
+        self.assertIsInstance(turn, collections.deque)
 
 
-class CardSuite(unittest.TestCase):
-    def test_card_instance(self):
-        card = objects.Card(name="test", description="Test 10")
-        self.assertIsInstance(card, objects.Card)
-        self.assertEqual(card.name, "test")
-        self.assertEqual(card.description, "Test 10")
+class CharacterSuite(unittest.TestCase):
+    def test_player(self) -> None:
+        player = objects.Character(name="User", life_stack=objects.Stack())
 
 
-class RulesSuite(unittest.TestCase):
+class HealSuite(unittest.TestCase):
+    player: objects.Character
+    opponent: objects.Character
+    heal_card: objects.Heal
+
+    def setUp(self) -> None:
+        self.player = objects.Character(name="Player")
+        self.opponent = objects.Character(name="Opponent")
+        self.heal_card = objects.Heal(
+            player=self.player, opponent=self.opponent)
+
+    def tearDown(self) -> None:
+        del self.player
+        del self.opponent
+        del self.heal_card
+
+    def test_heal_instance(self) -> None:
+        self.assertIsInstance(self.heal_card, objects.Heal)
+
+    def test_larger_chip_stack_after_play(self) -> None:
+        before = len(self.player.chip_stack)
+        self.heal_card.play()
+        after = len(self.player.chip_stack)
+        self.assertEqual(after, before + 2)
+
+    def test_opponent_returned_by_play(self) -> None:
+        obtained = self.heal_card.play()
+        self.assertIs(obtained, self.opponent)
+
+
+@unittest.skip("Not implemented yet")
+class MatchSuite(unittest.TestCase):
+    match: objects.Match
+
     @classmethod
-    def setUpClass(cls):
-        player1 = objects.Player(name="player1", life_stack=objects.Stack())
-        player1.life_stack.extend(life_stack)
-        player2 = objects.Player(name="player2", life_stack=objects.Stack())
-        player2.life_stack.extend(life_stack)
-        cls.round = objects.Round(player1=player1, player2=player2)
-        cls.round.shuffle_players = mock.Mock(
-            side_effect=cls.round.shuffle_players)
-        cls.round.initialize()
+    def setUpClass(cls) -> None:
+        player1 = objects.Character(name="player1")
+        player2 = objects.Character(name="player2")
+        cls.match = objects.Match(player1=player1, player2=player2)
+        cls.match.shuffle_players = mock.Mock(
+            side_effect=cls.match.shuffle_players)
+        cls.match.shuffle_each_life_stack = mock.Mock(
+            side_effect=cls.match.shuffle_each_life_stack)
+        cls.match.initialize()
 
-    def test_oponents(self):
-        self.assertIsInstance(self.round.player1, objects.Player)
-        self.assertIsInstance(self.round.player2, objects.Player)
+    def test_oponents(self) -> None:
+        self.assertIsInstance(self.match.player1, objects.Character)
+        self.assertIsInstance(self.match.player2, objects.Character)
 
-    def test_shuffle(self):
-        self.assertNotEqual(self.round.player1.life_stack, life_stack)
-        self.assertNotEqual(self.round.player2.life_stack, life_stack)
+    def test_shuffle_each_card(self) -> None:
+        self.match.shuffle_each_life_stack.assert_called()
 
-    def test_hand_size(self):
-        self.assertEqual(len(self.round.player1.hand), 5)
-        self.assertEqual(len(self.round.player2.hand), 5)
+    def test_hand_size(self) -> None:
+        self.assertEqual(len(self.match.player1.hand), 5)
+        self.assertEqual(len(self.match.player2.hand), 5)
 
-    def test_player_order_shuffle(self):
-        self.round.shuffle_players.assert_called()
-        self.assertEqual(len(self.round.turns), 2)
+    def test_player_order_shuffle(self) -> None:
+        self.match.shuffle_players.assert_called()
+        self.assertEqual(len(self.match.turns), 2)
 
 
 if __name__ == '__main__':
