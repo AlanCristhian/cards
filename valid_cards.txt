@@ -1,9 +1,9 @@
-Append a Health Chip on Player Chip Stack.
-Append a Turn on Player.
-Remove a Health Chip on Opponent Chip Stack.
-Move a Health Chip from Opponent Chip Stack to Player Chip Stack.
-Move a Card from Player Life Stack to Player Hand.
-Move a Card from Player Death Stack to Player Life Stack.
-Move a Card from Opponent Hand to Player Life Stack.
-Move a Card from Opponent Hand to Opponent Life Stack.
-Move a Card from Opponent Hand to Opponent Death Stack.
+Heal: Append a Health Chip on Player Chip Stack.
+Postpone: Append a Turn on Player.
+Harm: Remove a Health Chip on Opponent Chip Stack.
+Absorb: Move a Health Chip from Opponent Chip Stack to Player Chip Stack.
+Accumulate: Move a Card from Player Life Stack to Player Hand.
+Resurrect: Move a Card from Player Death Stack to Player Life Stack.
+Steal: Move a Card from Opponent Life Stack to Player Life Stack.
+Crop: Move a Card from Opponent Hand to Opponent Life Stack.
+Kill: Move a Card from Opponent Life Stack to Opponent Death Stack.

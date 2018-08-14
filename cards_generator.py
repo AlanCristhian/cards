@@ -41,19 +41,19 @@ def remove_cards():
 def move_cards():
     ITEMS = ["Health Chip", "Card"]
     OWNERS = ["Player", "Opponent"]
-    STACKS = ["Chip Stack", "Life Stack", "Death Stack", "Hand"]
-    CARD_STACKS = ["Life Stack", "Death Stack", "Hand"]
+    STACKS = ["Chip Stack", "Life Stack", "Hand", "Death Stack"]
+    CARD_STACKS = ["Life Stack", "Hand", "Death Stack"]
     for item, owner1, stack1, owner2, stack2 in product(ITEMS, OWNERS, STACKS, OWNERS, STACKS):
         if not (owner1 == owner2 and stack1 == stack2) \
         and not (item == "Card" and "Chip Stack" in (stack1, stack2)) \
         and not (item == "Health Chip" and stack1 in CARD_STACKS) \
         and not (item == "Health Chip" and stack2 in CARD_STACKS) \
-        and not (owner1 == "Player" and stack2 == "Death Stack") \
         and not (owner1 == "Player" and stack1 == "Hand" and stack2 in CARD_STACKS) \
-        and not (owner1 == "Opponent" and stack1 in ("Life Stack", "Death Stack")) \
-        and not ((owner1, stack1) == ("Opponent", "Hand") and (owner2, stack2) == ("Player", "Death Stack")) \
-        and not ((owner1, stack1) == ("Player", "Death Stack") and (owner2, stack2) == ("Player", "Hand")) \
         and not (owner1 == "Opponent" and (owner2, stack2) == ("Player", "Hand")) \
+        and not ((owner1, stack1) == ("Opponent", "Hand") and (owner2, stack2) == ("Player", "Life Stack")) \
+        and not ((owner1, stack1) == ("Opponent", "Life Stack") and (owner2, stack2) == ("Opponent", "Hand")) \
+        and not ((owner1, stack1) == ("Opponent", "Life Stack") and (owner2, stack2) == ("Opponent", "Hand")) \
+        and not (owner1 == "Opponent" and stack1 == "Life Stack" and owner2 == "Opponent" and stack2 != "Hand") \
         and not (owner1 == "Player" and owner2 == "Opponent"):
             yield f"+Move a {item} from {owner1} {stack1} to {owner2} {stack2}.\n"
         else:

@@ -6,6 +6,7 @@ Card game
 
 - Shufle each stack.
 - Make a hand of five cards.
+- Get a card at the beggining of each turn.
 
 # TODO
 

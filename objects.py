@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import no_type_check
+from typing import no_type_check, Any
 import abc
 import collections
 import dataclasses
@@ -14,11 +14,10 @@ class Chip:
 
 
 class Stack(collections.deque):
-    pass
-
-
-class Hand(collections.deque):
-    pass
+    def popindex(self, index: int) -> Any:
+        item = self[index]
+        del self[index]
+        return item
 
 
 class Turn(collections.deque):
@@ -36,7 +35,7 @@ class Character:
     chip_stack: Stack = dataclasses.field(default_factory=_make_chip_stack)
     death_stack: Stack = dataclasses.field(default_factory=Stack)
     played_stack: Stack = dataclasses.field(default_factory=Stack)
-    hand: Hand = dataclasses.field(default_factory=Hand)
+    hand: Stack = dataclasses.field(default_factory=Stack)
 
 
 class Card(abc.ABC):
@@ -45,7 +44,7 @@ class Card(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def play(self) -> Character:
+    def play(self, index: int=0) -> bool:
         pass
 
 
@@ -58,13 +57,128 @@ class Heal(Card):
         self.name = "Heal"
         self.description = "Append two Health Chips on Character Chip Stack."
 
-    def play(self) -> Character:
+    def play(self, index: int=0) -> bool:
         self.player.chip_stack.append(Chip())
         self.player.chip_stack.append(Chip())
+        return False  # Tell the Match that no extra turn
 
-        # Return the instance of the opponent
-        # to tell the Match who play next turn
-        return self.opponent
+
+@dataclasses.dataclass
+class Postpone(Card):
+    player: Character
+    opponent: Character
+
+    def __post_init__(self) -> None:
+        self.name = "Postpone"
+        self.description = "Append a Turn on Player."
+
+    def play(self, index: int=0) -> bool:
+        """Tell the Match that will have an extra turn"""
+        return True
+
+
+@dataclasses.dataclass
+class Harm(Card):
+    player: Character
+    opponent: Character
+
+    def __post_init__(self) -> None:
+        self.name = "Harm"
+        self.description = "Remove two Health Chips on Opponent Chip Stack."
+
+    def play(self, index: int=0) -> bool:
+        self.opponent.chip_stack.pop()
+        self.opponent.chip_stack.pop()
+        return False  # Tell the Match that no extra turn
+
+
+@dataclasses.dataclass
+class Absorb(Card):
+    player: Character
+    opponent: Character
+
+    def __post_init__(self) -> None:
+        self.name = "Absorb"
+        self.description = "Move a Health Chip from Opponent " \
+                           "Chip Stack to Player Chip Stack."
+
+    def play(self, index: int=0) -> bool:
+        self.player.chip_stack.append(self.opponent.chip_stack.pop())
+        return False  # Tell the Match that no extra turn
+
+
+@dataclasses.dataclass
+class Accumulate(Card):
+    player: Character
+    opponent: Character
+
+    def __post_init__(self) -> None:
+        self.name = "Accumulate"
+        self.description = "Move a Card from Player Life Stack to Player Hand."
+
+    def play(self, index: int=0) -> bool:
+        self.player.hand.append(self.player.life_stack.pop())
+        return False  # Tell the Match that no extra turn
+
+
+@dataclasses.dataclass
+class Resurrect(Card):
+    player: Character
+    opponent: Character
+
+    def __post_init__(self) -> None:
+        self.name = "Resurrect"
+        self.description = "Move a Card from Player Death " \
+                           "Stack to Player Life Stack."
+
+    def play(self, index: int=0) -> bool:
+        self.player.life_stack.append(self.player.death_stack.popleft())
+        return False  # Tell the Match that no extra turn
+
+
+@dataclasses.dataclass
+class Steal(Card):
+    player: Character
+    opponent: Character
+
+    def __post_init__(self) -> None:
+        self.name = "Steal"
+        self.description = "Move a Card from Opponent Life " \
+                           "Stack to Player Life Stack."
+
+    def play(self, index: int=0) -> bool:
+        self.player.life_stack.append(self.opponent.life_stack.popindex(index))
+        return False  # Tell the Match that no extra turn
+
+
+@dataclasses.dataclass
+class Crop(Card):
+    player: Character
+    opponent: Character
+
+    def __post_init__(self) -> None:
+        self.name = "Crop"
+        self.description = "Move a Card from Opponent " \
+                           "Hand to Opponent Life Stack."
+
+    def play(self, index: int=0) -> bool:
+        self.opponent.life_stack.append(self.opponent.hand.popindex(index))
+        return False  # Tell the Match that no extra turn
+
+
+@dataclasses.dataclass
+class Kill(Card):
+    player: Character
+    opponent: Character
+
+    def __post_init__(self) -> None:
+        self.name = "Kill"
+        self.description = "Move a Card from Opponent Life " \
+                           "Stack to Opponent Death Stack."
+
+    def play(self, index: int=0) -> bool:
+        self.opponent.death_stack.append(self.opponent.life_stack.pop())
+        return False  # Tell the Match that no extra turn
 
 
 @dataclasses.dataclass
@@ -93,3 +207,10 @@ class Match:
         self.turns = Turn(maxlen=2)
         self.turns.extend((self.player1, self.player2))
         random.shuffle(self.turns)
+
+
+
+DEFAULT_STACK = Stack([Heal(), Heal(), Postpone(), Postpone(), Harm(), Harm(),
+                       Absorb(), Absorb(), Accumulate(), Accumulate(),
+                       Resurrect(), Resurrect(), Steal(), Steal(), Crop(),
+                       Crop(), Kill(), Kill()])
