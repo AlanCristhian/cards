@@ -211,12 +211,3 @@ class Match:
         self.turns = Turn(maxlen=2)
         self.turns.extend((self.player1, self.player2))
         random.shuffle(self.turns)
-
-
-
-DEFAULT_STACK = Stack([Heal, Heal, Postpone, Postpone, Harm, Harm, Drain,
-                       Drain, Accumulate, Accumulate, Resurrect, Resurrect,
-                       Steal, Steal, Crop, Crop, Kill, Kill])
-
-CARDS = (Heal, Postpone, Harm, Drain, Accumulate, Resurrect, Steal, Crop,
-         Kill)
