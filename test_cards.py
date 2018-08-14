@@ -138,39 +138,39 @@ class HarmSuite(BaseCardSuite):
         self.assertIs(self.harm_card.play(), False)
 
 
-class AbsorbSuite(BaseCardSuite):
-    absorb_card: objects.Absorb
+class DrainSuite(BaseCardSuite):
+    drain_card: objects.Drain
 
     def setUp(self) -> None:
         super().setUp()
-        self.absorb_card = objects.Absorb(
+        self.drain_card = objects.Drain(
             player=self.player, opponent=self.opponent)
 
     def tearDown(self) -> None:
         super().tearDown()
-        del self.absorb_card
+        del self.drain_card
 
     def test_absorb_instance(self) -> None:
-        self.assertIsInstance(self.absorb_card, objects.Absorb)
+        self.assertIsInstance(self.drain_card, objects.Drain)
 
     def test_absorb_name(self) -> None:
-        self.assertEqual(self.absorb_card.name, "Absorb")
+        self.assertEqual(self.drain_card.name, "Drain")
 
     def test_absorb_description(self) -> None:
-        self.assertEqual(self.absorb_card.__doc__,
+        self.assertEqual(self.drain_card.__doc__,
            "Move a Health Chip from Opponent Chip Stack to Player Chip Stack.")
 
     def test_move_a_chip_from_opponent_to_player(self) -> None:
         opponent_before = len(self.opponent.chip_stack)
         player_before = len(self.player.chip_stack)
-        self.absorb_card.play()
+        self.drain_card.play()
         opponent_after = len(self.opponent.chip_stack)
         player_after = len(self.player.chip_stack)
         self.assertEqual(opponent_after, opponent_before - 1)
         self.assertEqual(player_after, player_before + 1)
 
     def test_no_extra_turn_after_play(self) -> None:
-        self.assertIs(self.absorb_card.play(), False)
+        self.assertIs(self.drain_card.play(), False)
 
 
 class AccumulateSuite(BaseCardSuite):

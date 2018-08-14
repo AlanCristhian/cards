@@ -96,14 +96,14 @@ class Harm(Card):
 
 
 @dataclasses.dataclass
-class Absorb(Card):
+class Drain(Card):
     """Move a Health Chip from Opponent Chip Stack to Player Chip Stack."""
 
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
-        self.name = "Absorb"
+        self.name = "Drain"
 
     def play(self, index: int=0) -> bool:
         self.player.chip_stack.append(self.opponent.chip_stack.pop())
@@ -214,6 +214,9 @@ class Match:
 
 
 
-DEFAULT_STACK = Stack([Heal, Heal, Postpone, Postpone, Harm, Harm, Absorb,
-                       Absorb, Accumulate, Accumulate, Resurrect, Resurrect,
+DEFAULT_STACK = Stack([Heal, Heal, Postpone, Postpone, Harm, Harm, Drain,
+                       Drain, Accumulate, Accumulate, Resurrect, Resurrect,
                        Steal, Steal, Crop, Crop, Kill, Kill])
+
+CARDS = (Heal, Postpone, Harm, Drain, Accumulate, Resurrect, Steal, Crop,
+         Kill)
