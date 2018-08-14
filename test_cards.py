@@ -67,7 +67,7 @@ class HealSuite(BaseCardSuite):
         self.assertEqual(self.heal_card.name, "Heal")
 
     def test_heal_description(self) -> None:
-        self.assertEqual(self.heal_card.description,
+        self.assertEqual(self.heal_card.__doc__,
             "Append two Health Chips on Character Chip Stack.")
 
     def test_more_chips_in_player_chip_stack_after_play(self) -> None:
@@ -99,7 +99,7 @@ class PostponeSuite(BaseCardSuite):
         self.assertEqual(self.postpone_card.name, "Postpone")
 
     def test_postpone_description(self) -> None:
-        self.assertEqual(self.postpone_card.description,
+        self.assertEqual(self.postpone_card.__doc__,
             "Append a Turn on Player.")
 
     def test_player_is_returned_by_play(self) -> None:
@@ -125,7 +125,7 @@ class HarmSuite(BaseCardSuite):
         self.assertEqual(self.harm_card.name, "Harm")
 
     def test_harm_description(self) -> None:
-        self.assertEqual(self.harm_card.description,
+        self.assertEqual(self.harm_card.__doc__,
             "Remove two Health Chips on Opponent Chip Stack.")
 
     def test_less_chips_in_opponent_chip_stack_after_play(self) -> None:
@@ -157,7 +157,7 @@ class AbsorbSuite(BaseCardSuite):
         self.assertEqual(self.absorb_card.name, "Absorb")
 
     def test_absorb_description(self) -> None:
-        self.assertEqual(self.absorb_card.description,
+        self.assertEqual(self.absorb_card.__doc__,
            "Move a Health Chip from Opponent Chip Stack to Player Chip Stack.")
 
     def test_move_a_chip_from_opponent_to_player(self) -> None:
@@ -192,7 +192,7 @@ class AccumulateSuite(BaseCardSuite):
         self.assertEqual(self.accumulate_card.name, "Accumulate")
 
     def test_accumulate_description(self) -> None:
-        self.assertEqual(self.accumulate_card.description,
+        self.assertEqual(self.accumulate_card.__doc__,
            "Move a Card from Player Life Stack to Player Hand.")
 
     def test_move_a_card_from_life_stack_to_hand(self) -> None:
@@ -229,7 +229,7 @@ class ResurrectSuite(BaseCardSuite):
         self.assertEqual(self.resurrect_card.name, "Resurrect")
 
     def test_resurrect_description(self) -> None:
-        self.assertEqual(self.resurrect_card.description,
+        self.assertEqual(self.resurrect_card.__doc__,
            "Move a Card from Player Death Stack to Player Life Stack.")
 
     def test_move_a_card_from_death_stack_to_life_stack(self) -> None:
@@ -269,7 +269,7 @@ class StealSuite(BaseCardSuite):
         self.assertEqual(self.steal_card.name, "Steal")
 
     def test_steal_description(self) -> None:
-        self.assertEqual(self.steal_card.description,
+        self.assertEqual(self.steal_card.__doc__,
            "Move a Card from Opponent Life Stack to Player Life Stack.")
 
     def test_steal_a_card_from_opponent(self) -> None:
@@ -308,7 +308,7 @@ class CropSuite(BaseCardSuite):
         self.assertEqual(self.crop_card.name, "Crop")
 
     def test_crop_description(self) -> None:
-        self.assertEqual(self.crop_card.description,
+        self.assertEqual(self.crop_card.__doc__,
            "Move a Card from Opponent Hand to Opponent Life Stack.")
 
     def test_crop_a_card_from_opponent(self) -> None:
@@ -347,7 +347,7 @@ class KillSuite(BaseCardSuite):
         self.assertEqual(self.kill_card.name, "Kill")
 
     def test_kill_description(self) -> None:
-        self.assertEqual(self.kill_card.description,
+        self.assertEqual(self.kill_card.__doc__,
            "Move a Card from Opponent Life Stack to Opponent Death Stack.")
 
     def test_kill_a_card_from_opponent(self) -> None:

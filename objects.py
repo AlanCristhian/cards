@@ -50,12 +50,13 @@ class Card(abc.ABC):
 
 @dataclasses.dataclass
 class Heal(Card):
+    """Append two Health Chips on Character Chip Stack."""
+
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
         self.name = "Heal"
-        self.description = "Append two Health Chips on Character Chip Stack."
 
     def play(self, index: int=0) -> bool:
         self.player.chip_stack.append(Chip())
@@ -65,12 +66,13 @@ class Heal(Card):
 
 @dataclasses.dataclass
 class Postpone(Card):
+    """Append a Turn on Player."""
+
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
         self.name = "Postpone"
-        self.description = "Append a Turn on Player."
 
     def play(self, index: int=0) -> bool:
         """Tell the Match that will have an extra turn"""
@@ -79,12 +81,13 @@ class Postpone(Card):
 
 @dataclasses.dataclass
 class Harm(Card):
+    """Remove two Health Chips on Opponent Chip Stack."""
+
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
         self.name = "Harm"
-        self.description = "Remove two Health Chips on Opponent Chip Stack."
 
     def play(self, index: int=0) -> bool:
         self.opponent.chip_stack.pop()
@@ -94,13 +97,13 @@ class Harm(Card):
 
 @dataclasses.dataclass
 class Absorb(Card):
+    """Move a Health Chip from Opponent Chip Stack to Player Chip Stack."""
+
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
         self.name = "Absorb"
-        self.description = "Move a Health Chip from Opponent " \
-                           "Chip Stack to Player Chip Stack."
 
     def play(self, index: int=0) -> bool:
         self.player.chip_stack.append(self.opponent.chip_stack.pop())
@@ -109,12 +112,13 @@ class Absorb(Card):
 
 @dataclasses.dataclass
 class Accumulate(Card):
+    """Move a Card from Player Life Stack to Player Hand."""
+
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
         self.name = "Accumulate"
-        self.description = "Move a Card from Player Life Stack to Player Hand."
 
     def play(self, index: int=0) -> bool:
         self.player.hand.append(self.player.life_stack.pop())
@@ -123,13 +127,13 @@ class Accumulate(Card):
 
 @dataclasses.dataclass
 class Resurrect(Card):
+    """Move a Card from Player Death Stack to Player Life Stack."""
+
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
         self.name = "Resurrect"
-        self.description = "Move a Card from Player Death " \
-                           "Stack to Player Life Stack."
 
     def play(self, index: int=0) -> bool:
         self.player.life_stack.append(self.player.death_stack.popleft())
@@ -138,13 +142,13 @@ class Resurrect(Card):
 
 @dataclasses.dataclass
 class Steal(Card):
+    """Move a Card from Opponent Life Stack to Player Life Stack."""
+
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
         self.name = "Steal"
-        self.description = "Move a Card from Opponent Life " \
-                           "Stack to Player Life Stack."
 
     def play(self, index: int=0) -> bool:
         self.player.life_stack.append(self.opponent.life_stack.popindex(index))
@@ -153,13 +157,13 @@ class Steal(Card):
 
 @dataclasses.dataclass
 class Crop(Card):
+    """Move a Card from Opponent Hand to Opponent Life Stack."""
+
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
         self.name = "Crop"
-        self.description = "Move a Card from Opponent " \
-                           "Hand to Opponent Life Stack."
 
     def play(self, index: int=0) -> bool:
         self.opponent.life_stack.append(self.opponent.hand.popindex(index))
@@ -168,13 +172,13 @@ class Crop(Card):
 
 @dataclasses.dataclass
 class Kill(Card):
+    """Move a Card from Opponent Life Stack to Opponent Death Stack."""
+
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
         self.name = "Kill"
-        self.description = "Move a Card from Opponent Life " \
-                           "Stack to Opponent Death Stack."
 
     def play(self, index: int=0) -> bool:
         self.opponent.death_stack.append(self.opponent.life_stack.pop())
@@ -210,7 +214,6 @@ class Match:
 
 
 
-DEFAULT_STACK = Stack([Heal(), Heal(), Postpone(), Postpone(), Harm(), Harm(),
-                       Absorb(), Absorb(), Accumulate(), Accumulate(),
-                       Resurrect(), Resurrect(), Steal(), Steal(), Crop(),
-                       Crop(), Kill(), Kill()])
+DEFAULT_STACK = Stack([Heal, Heal, Postpone, Postpone, Harm, Harm, Absorb,
+                       Absorb, Accumulate, Accumulate, Resurrect, Resurrect,
+                       Steal, Steal, Crop, Crop, Kill, Kill])
