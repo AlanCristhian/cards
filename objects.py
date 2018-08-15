@@ -44,13 +44,13 @@ class Card(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def play(self, index: int=0) -> bool:
+    def play(self, index: int=0) -> None:
         pass
 
 
 @dataclasses.dataclass
 class Heal(Card):
-    """Append two Health Chips on Character Chip Stack."""
+    """Append two Chips on Character Chip Stack."""
 
     player: Character
     opponent: Character
@@ -58,30 +58,14 @@ class Heal(Card):
     def __post_init__(self) -> None:
         self.name = "Heal"
 
-    def play(self, index: int=0) -> bool:
+    def play(self, index: int=0) -> None:
         self.player.chip_stack.append(Chip())
         self.player.chip_stack.append(Chip())
-        return False  # Tell the Match that no extra turn
-
-
-@dataclasses.dataclass
-class Postpone(Card):
-    """Append a Turn on Player."""
-
-    player: Character
-    opponent: Character
-
-    def __post_init__(self) -> None:
-        self.name = "Postpone"
-
-    def play(self, index: int=0) -> bool:
-        """Tell the Match that will have an extra turn"""
-        return True
 
 
 @dataclasses.dataclass
 class Harm(Card):
-    """Remove two Health Chips on Opponent Chip Stack."""
+    """Remove two Chips on Opponent Chip Stack."""
 
     player: Character
     opponent: Character
@@ -89,15 +73,14 @@ class Harm(Card):
     def __post_init__(self) -> None:
         self.name = "Harm"
 
-    def play(self, index: int=0) -> bool:
+    def play(self, index: int=0) -> None:
         self.opponent.chip_stack.pop()
         self.opponent.chip_stack.pop()
-        return False  # Tell the Match that no extra turn
 
 
 @dataclasses.dataclass
 class Drain(Card):
-    """Move a Health Chip from Opponent Chip Stack to Player Chip Stack."""
+    """Move a Chip from Opponent Chip Stack to Player Chip Stack."""
 
     player: Character
     opponent: Character
@@ -105,24 +88,8 @@ class Drain(Card):
     def __post_init__(self) -> None:
         self.name = "Drain"
 
-    def play(self, index: int=0) -> bool:
+    def play(self, index: int=0) -> None:
         self.player.chip_stack.append(self.opponent.chip_stack.pop())
-        return False  # Tell the Match that no extra turn
-
-
-@dataclasses.dataclass
-class Accumulate(Card):
-    """Move a Card from Player Life Stack to Player Hand."""
-
-    player: Character
-    opponent: Character
-
-    def __post_init__(self) -> None:
-        self.name = "Accumulate"
-
-    def play(self, index: int=0) -> bool:
-        self.player.hand.append(self.player.life_stack.pop())
-        return False  # Tell the Match that no extra turn
 
 
 @dataclasses.dataclass
@@ -135,39 +102,22 @@ class Resurrect(Card):
     def __post_init__(self) -> None:
         self.name = "Resurrect"
 
-    def play(self, index: int=0) -> bool:
+    def play(self, index: int=0) -> None:
         self.player.life_stack.append(self.player.death_stack.popleft())
-        return False  # Tell the Match that no extra turn
 
 
 @dataclasses.dataclass
-class Steal(Card):
-    """Move a Card from Opponent Life Stack to Player Life Stack."""
+class Expand(Card):
+    """Move a Card from Player Life Stack to Player Hand."""
 
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
-        self.name = "Steal"
+        self.name = "Expand"
 
-    def play(self, index: int=0) -> bool:
-        self.player.life_stack.append(self.opponent.life_stack.popindex(index))
-        return False  # Tell the Match that no extra turn
-
-
-@dataclasses.dataclass
-class Crop(Card):
-    """Move a Card from Opponent Hand to Opponent Life Stack."""
-
-    player: Character
-    opponent: Character
-
-    def __post_init__(self) -> None:
-        self.name = "Crop"
-
-    def play(self, index: int=0) -> bool:
-        self.opponent.life_stack.append(self.opponent.hand.popindex(index))
-        return False  # Tell the Match that no extra turn
+    def play(self, index: int=0) -> None:
+        self.player.hand.append(self.player.life_stack.pop())
 
 
 @dataclasses.dataclass
@@ -180,9 +130,22 @@ class Kill(Card):
     def __post_init__(self) -> None:
         self.name = "Kill"
 
-    def play(self, index: int=0) -> bool:
+    def play(self, index: int=0) -> None:
         self.opponent.death_stack.append(self.opponent.life_stack.pop())
-        return False  # Tell the Match that no extra turn
+
+
+@dataclasses.dataclass
+class Crop(Card):
+    """Move a Card from Opponent Hand to Opponent Life Stack."""
+
+    player: Character
+    opponent: Character
+
+    def __post_init__(self) -> None:
+        self.name = "Crop"
+
+    def play(self, index: int=0) -> None:
+        self.opponent.life_stack.append(self.opponent.hand.popindex(index))
 
 
 @dataclasses.dataclass
@@ -211,3 +174,9 @@ class Match:
         self.turns = Turn(maxlen=2)
         self.turns.extend((self.player1, self.player2))
         random.shuffle(self.turns)
+
+
+@no_type_check
+def new_stack(player: Character, opponent: Character) -> Stack:
+    classes = [Heal, Harm, Drain, Resurrect, Expand, Kill, Crop]*2
+    return Stack([card(player, opponent) for card in classes])

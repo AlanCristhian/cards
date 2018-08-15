@@ -68,42 +68,13 @@ class HealSuite(BaseCardSuite):
 
     def test_heal_description(self) -> None:
         self.assertEqual(self.heal_card.__doc__,
-            "Append two Health Chips on Character Chip Stack.")
+            "Append two Chips on Character Chip Stack.")
 
     def test_more_chips_in_player_chip_stack_after_play(self) -> None:
         before = len(self.player.chip_stack)
         self.heal_card.play()
         after = len(self.player.chip_stack)
         self.assertEqual(after, before + 2)
-
-    def test_that_no_extra_turn_after_play(self) -> None:
-        self.assertIs(self.heal_card.play(), False)
-
-
-class PostponeSuite(BaseCardSuite):
-    postpone_card: objects.Postpone
-
-    def setUp(self) -> None:
-        super().setUp()
-        self.postpone_card = objects.Postpone(
-            player=self.player, opponent=self.opponent)
-
-    def tearDown(self) -> None:
-        super().tearDown()
-        del self.postpone_card
-
-    def test_postpone_instance(self) -> None:
-        self.assertIsInstance(self.postpone_card, objects.Postpone)
-
-    def test_postpone_name(self) -> None:
-        self.assertEqual(self.postpone_card.name, "Postpone")
-
-    def test_postpone_description(self) -> None:
-        self.assertEqual(self.postpone_card.__doc__,
-            "Append a Turn on Player.")
-
-    def test_player_is_returned_by_play(self) -> None:
-        self.assertIs(self.postpone_card.play(), True)
 
 
 class HarmSuite(BaseCardSuite):
@@ -126,16 +97,13 @@ class HarmSuite(BaseCardSuite):
 
     def test_harm_description(self) -> None:
         self.assertEqual(self.harm_card.__doc__,
-            "Remove two Health Chips on Opponent Chip Stack.")
+            "Remove two Chips on Opponent Chip Stack.")
 
     def test_less_chips_in_opponent_chip_stack_after_play(self) -> None:
         before = len(self.opponent.chip_stack)
         self.harm_card.play()
         after = len(self.opponent.chip_stack)
         self.assertEqual(after, before - 2)
-
-    def test_no_extra_turn_after_play(self) -> None:
-        self.assertIs(self.harm_card.play(), False)
 
 
 class DrainSuite(BaseCardSuite):
@@ -158,7 +126,7 @@ class DrainSuite(BaseCardSuite):
 
     def test_absorb_description(self) -> None:
         self.assertEqual(self.drain_card.__doc__,
-           "Move a Health Chip from Opponent Chip Stack to Player Chip Stack.")
+           "Move a Chip from Opponent Chip Stack to Player Chip Stack.")
 
     def test_move_a_chip_from_opponent_to_player(self) -> None:
         opponent_before = len(self.opponent.chip_stack)
@@ -169,30 +137,27 @@ class DrainSuite(BaseCardSuite):
         self.assertEqual(opponent_after, opponent_before - 1)
         self.assertEqual(player_after, player_before + 1)
 
-    def test_no_extra_turn_after_play(self) -> None:
-        self.assertIs(self.drain_card.play(), False)
 
-
-class AccumulateSuite(BaseCardSuite):
-    accumulate_card: objects.Accumulate
+class ExpandSuite(BaseCardSuite):
+    expand_card: objects.Expand
 
     def setUp(self) -> None:
         super().setUp()
-        self.accumulate_card = objects.Accumulate(
+        self.expand_card = objects.Expand(
             player=self.player, opponent=self.opponent)
 
     def tearDown(self) -> None:
         super().tearDown()
-        del self.accumulate_card
+        del self.expand_card
 
-    def test_accumulate_instance(self) -> None:
-        self.assertIsInstance(self.accumulate_card, objects.Accumulate)
+    def test_expand_instance(self) -> None:
+        self.assertIsInstance(self.expand_card, objects.Expand)
 
-    def test_accumulate_name(self) -> None:
-        self.assertEqual(self.accumulate_card.name, "Accumulate")
+    def test_expand_name(self) -> None:
+        self.assertEqual(self.expand_card.name, "Expand")
 
-    def test_accumulate_description(self) -> None:
-        self.assertEqual(self.accumulate_card.__doc__,
+    def test_expand_description(self) -> None:
+        self.assertEqual(self.expand_card.__doc__,
            "Move a Card from Player Life Stack to Player Hand.")
 
     def test_move_a_card_from_life_stack_to_hand(self) -> None:
@@ -200,14 +165,9 @@ class AccumulateSuite(BaseCardSuite):
         self.player.life_stack.append(card)
         len_life_stack = len(self.player.life_stack)
         len_hand = len(self.player.hand)
-        self.accumulate_card.play()
+        self.expand_card.play()
         self.assertEqual(len(self.player.life_stack), len_life_stack - 1)
         self.assertEqual(len(self.player.hand), len_hand + 1)
-
-    def test_no_extra_turn_after_play(self) -> None:
-        card = objects.Heal(player=self.player, opponent=self.opponent)
-        self.player.life_stack.append(card)
-        self.assertIs(self.accumulate_card.play(), False)
 
 
 class ResurrectSuite(BaseCardSuite):
@@ -244,50 +204,6 @@ class ResurrectSuite(BaseCardSuite):
         self.assertEqual(len(self.player.life_stack), len_life_stack + 1)
         self.assertEqual(self.player.life_stack.pop(), heal)
 
-    def test_no_extra_turn_after_play(self) -> None:
-        card = objects.Heal(player=self.player, opponent=self.opponent)
-        self.player.death_stack.append(card)
-        self.assertIs(self.resurrect_card.play(), False)
-
-
-class StealSuite(BaseCardSuite):
-    steal_card: objects.Steal
-
-    def setUp(self) -> None:
-        super().setUp()
-        self.steal_card = objects.Steal(
-            player=self.player, opponent=self.opponent)
-
-    def tearDown(self) -> None:
-        super().tearDown()
-        del self.steal_card
-
-    def test_steal_instance(self) -> None:
-        self.assertIsInstance(self.steal_card, objects.Steal)
-
-    def test_steal_name(self) -> None:
-        self.assertEqual(self.steal_card.name, "Steal")
-
-    def test_steal_description(self) -> None:
-        self.assertEqual(self.steal_card.__doc__,
-           "Move a Card from Opponent Life Stack to Player Life Stack.")
-
-    def test_steal_a_card_from_opponent(self) -> None:
-        card = objects.Harm(player=self.player, opponent=self.opponent)
-        self.opponent.life_stack.append(card)
-        len_opponent_life_stack = len(self.opponent.life_stack)
-        len_player_life_stack = len(self.player.life_stack)
-        self.steal_card.play()
-        self.assertEqual(len(self.player.life_stack),
-                         len_player_life_stack + 1)
-        self.assertEqual(len(self.opponent.life_stack),
-                         len_opponent_life_stack - 1)
-
-    def test_no_extra_turn_after_play(self) -> None:
-        card = objects.Heal(player=self.player, opponent=self.opponent)
-        self.opponent.life_stack.append(card)
-        self.assertIs(self.steal_card.play(), False)
-
 
 class CropSuite(BaseCardSuite):
     crop_card: objects.Crop
@@ -322,11 +238,6 @@ class CropSuite(BaseCardSuite):
         self.assertEqual(len(self.opponent.life_stack),
                          len_opponent_life_stack + 1)
 
-    def test_no_extra_turn_after_play(self) -> None:
-        card = objects.Heal(player=self.player, opponent=self.opponent)
-        self.opponent.hand.append(card)
-        self.assertIs(self.crop_card.play(), False)
-
 
 class KillSuite(BaseCardSuite):
     kill_card: objects.Kill
@@ -360,11 +271,6 @@ class KillSuite(BaseCardSuite):
                          len_opponent_life_stack - 1)
         self.assertEqual(len(self.opponent.death_stack),
                          len_opponent_death_stack + 1)
-
-    def test_no_extra_turn_after_play(self) -> None:
-        card = objects.Heal(player=self.player, opponent=self.opponent)
-        self.opponent.life_stack.append(card)
-        self.assertIs(self.kill_card.play(), False)
 
 
 @unittest.skip("Not implemented yet")
