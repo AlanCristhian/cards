@@ -170,26 +170,26 @@ class ExpandSuite(BaseCardSuite):
         self.assertEqual(len(self.player.hand), len_hand + 1)
 
 
-class ResurrectSuite(BaseCardSuite):
-    resurrect_card: objects.Resurrect
+class ReviveSuite(BaseCardSuite):
+    revive_card: objects.Revive
 
     def setUp(self) -> None:
         super().setUp()
-        self.resurrect_card = objects.Resurrect(
+        self.revive_card = objects.Revive(
             player=self.player, opponent=self.opponent)
 
     def tearDown(self) -> None:
         super().tearDown()
-        del self.resurrect_card
+        del self.revive_card
 
-    def test_resurrect_instance(self) -> None:
-        self.assertIsInstance(self.resurrect_card, objects.Resurrect)
+    def test_revive_instance(self) -> None:
+        self.assertIsInstance(self.revive_card, objects.Revive)
 
-    def test_resurrect_name(self) -> None:
-        self.assertEqual(self.resurrect_card.name, "Resurrect")
+    def test_revive_name(self) -> None:
+        self.assertEqual(self.revive_card.name, "Revive")
 
-    def test_resurrect_description(self) -> None:
-        self.assertEqual(self.resurrect_card.__doc__,
+    def test_revive_description(self) -> None:
+        self.assertEqual(self.revive_card.__doc__,
            "Move a Card from Player Death Stack to Player Life Stack.")
 
     def test_move_a_card_from_death_stack_to_life_stack(self) -> None:
@@ -199,7 +199,7 @@ class ResurrectSuite(BaseCardSuite):
         self.player.death_stack.append(harm)
         len_death_stack = len(self.player.death_stack)
         len_life_stack = len(self.player.life_stack)
-        self.resurrect_card.play()
+        self.revive_card.play()
         self.assertEqual(len(self.player.death_stack), len_death_stack - 1)
         self.assertEqual(len(self.player.life_stack), len_life_stack + 1)
         self.assertEqual(self.player.life_stack.pop(), heal)

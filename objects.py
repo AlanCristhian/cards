@@ -93,14 +93,14 @@ class Drain(Card):
 
 
 @dataclasses.dataclass
-class Resurrect(Card):
+class Revive(Card):
     """Move a Card from Player Death Stack to Player Life Stack."""
 
     player: Character
     opponent: Character
 
     def __post_init__(self) -> None:
-        self.name = "Resurrect"
+        self.name = "Revive"
 
     def play(self, index: int=0) -> None:
         self.player.life_stack.append(self.player.death_stack.popleft())
@@ -178,5 +178,5 @@ class Match:
 
 @no_type_check
 def new_stack(player: Character, opponent: Character) -> Stack:
-    classes = [Heal, Harm, Drain, Resurrect, Expand, Kill, Crop]*2
+    classes = [Heal, Harm, Drain, Revive, Expand, Kill, Crop]*2
     return Stack([card(player, opponent) for card in classes])
