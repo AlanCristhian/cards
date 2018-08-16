@@ -2,40 +2,80 @@
 
 from __future__ import annotations
 
-from typing import no_type_check, Union
+from typing import no_type_check, Any, Iterable, Optional
 import abc
 import collections
 import dataclasses
 import random
 
 
-class Chip:
+class Item:
+    def __repr__(self) -> str:
+        return type(self).__name__
+
+
+class Chip(Item):
     pass
 
 
 class Stack(collections.deque):
-    def pop_from(self, index: int) -> Union[Card, Chip]:
-        item: Union[Card, Chip] = self[index]
+    def pop_from(self, index: int) -> Any:
+        item = self[index]
         del self[index]
         return item
+
+
+class ChipStack(Stack):
+    def __init__(self,
+                 iterable: Iterable[Chip],
+                 maxlen: Optional[int] = None
+                 ) -> None:
+        if maxlen is None:
+            super().__init__(iterable)
+        else:
+            super().__init__(iterable, maxlen)
+
+    def append(self, x: Chip) -> None:
+        super().append(x)
+
+    def extend(self, iterable: Iterable) -> None:
+        super().extend(iterable)
+
+
+class CardStack(Stack):
+    def __init__(self,
+                 iterable: Iterable[Card] = [],
+                 maxlen: Optional[int] = None
+                 ) -> None:
+
+        if maxlen is None:
+            super().__init__(iterable)
+        else:
+            super().__init__(iterable, maxlen)
+
+    def append(self, x: Card) -> None:
+        super().append(x)
+
+    def extend(self, iterable: Iterable) -> None:
+        super().extend(iterable)
 
 
 class Turn(collections.deque):
     pass
 
 
-def new_chip_stack() -> Stack:
-    return Stack(Chip() for _ in range(10))
+def new_chip_stack() -> ChipStack:
+    return ChipStack(Chip() for _ in range(10))
 
 
 @dataclasses.dataclass(repr=False, frozen=True)
 class Character:
     name: str
-    life_stack: Stack = dataclasses.field(default_factory=Stack)
-    chip_stack: Stack = dataclasses.field(default_factory=new_chip_stack)
-    death_stack: Stack = dataclasses.field(default_factory=Stack)
-    played_stack: Stack = dataclasses.field(default_factory=Stack)
-    hand: Stack = dataclasses.field(default_factory=Stack)
+    life_stack: CardStack = dataclasses.field(default_factory=CardStack)
+    chip_stack: ChipStack = dataclasses.field(default_factory=new_chip_stack)
+    death_stack: CardStack = dataclasses.field(default_factory=CardStack)
+    played_stack: CardStack = dataclasses.field(default_factory=CardStack)
+    hand: CardStack = dataclasses.field(default_factory=CardStack)
 
     @no_type_check
     def new_card_stack(self, other: Character) -> None:
@@ -158,6 +198,8 @@ class Match:
     player_1: Character
     player_2: Character
     turns: Turn = dataclasses.field(init=False)
+    current_player: Character = dataclasses.field(init=False)
+    next_player: Character = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
         self.fill_players_life_stack()
@@ -183,3 +225,32 @@ class Match:
     def shuffle_players(self) -> None:
         self.turns = Turn([self.player_1, self.player_2], maxlen=2)
         random.shuffle(self.turns)
+
+
+class MatchLoop(Match):
+    def switch_player(self) -> None:
+        self.current_player = self.turns[0]
+        self.next_player = self.turns[1]
+        self.turns.reverse()
+
+    def add_card_to_current_player(self) -> None:
+        self.current_player.hand.append(self.current_player.life_stack.pop())
+
+    def play_card(self, index: int) -> None:
+        card = self.current_player.hand.pop_from(index)
+
+        if (isinstance(card, Harm) and len(self.next_player.chip_stack) <= 2) \
+        or (isinstance(card, Drain) and len(self.next_player.chip_stack) <= 1):
+            raise GameOverError()
+        elif isinstance(card, Kill) \
+        and len(self.next_player.played_stack) <= 1 \
+        and len(self.next_player.hand) == 0 \
+        and len(self.next_player.life_stack) == 0:
+            raise GameOverError()
+
+        card.play()
+        self.current_player.played_stack.append(card)
+
+
+class GameOverError(RuntimeError):
+    pass

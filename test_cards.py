@@ -289,5 +289,114 @@ class MatchSuite(unittest.TestCase):
         self.match.shuffle_players.assert_called()
 
 
+class MatchLoopSuite(unittest.TestCase):
+    def setUp(self) -> None:
+        player_1 = objects.Character(name="player_1")
+        player_2 = objects.Character(name="player_2")
+        self.match = objects.MatchLoop(player_1=player_1, player_2=player_2)
+
+    def test_instance(self) -> None:
+        self.assertIsInstance(self.match, objects.MatchLoop)
+
+    def test_stwitch_player(self) -> None:
+        turns = list(self.match.turns)
+        self.match.switch_player()
+        self.assertNotEqual(list(self.match.turns), turns)
+
+    def test_add_card_to_current_player(self) -> None:
+        self.match.switch_player()
+        self.match.add_card_to_current_player()
+        self.assertEqual(len(self.match.current_player.hand), 5)
+        self.assertEqual(len(self.match.current_player.life_stack), 9)
+
+
+HARM = 0
+DRAIN = 1
+KILL = 2
+
+
+class MatchLoopPlayCardSuite(unittest.TestCase):
+    def setUp(self) -> None:
+        player_1 = objects.Character(name="player_1")
+        player_2 = objects.Character(name="player_2")
+        self.match = objects.MatchLoop(player_1=player_1, player_2=player_2)
+
+        self.match.switch_player()
+        self.match.current_player.life_stack.extend(
+            self.match.current_player.hand)
+        self.match.current_player.hand.clear()
+        names = [c.name for c in self.match.current_player.life_stack]
+        harm_index = names.index("Harm")
+        drain_index = names.index("Drain")
+        kill_index = names.index("Kill")
+
+        self.harm_card = self.match.current_player.life_stack[harm_index]
+        self.drain_card = self.match.current_player.life_stack[drain_index]
+        self.kill_card = self.match.current_player.life_stack[kill_index]
+
+        self.match.current_player.hand.append(self.harm_card)
+        self.match.current_player.hand.append(self.drain_card)
+        self.match.current_player.hand.append(self.kill_card)
+
+    def test_hand_reduced(self) -> None:
+        self.match.play_card(HARM)
+        self.assertEqual(len(self.match.current_player.hand), 2)
+
+    def test_card_in_played_stack(self) -> None:
+        self.match.play_card(HARM)
+        self.assertEqual(len(self.match.current_player.played_stack), 1)
+
+    def test_harm_card_in_played_stack(self) -> None:
+        self.match.play_card(HARM)
+        self.assertIn(self.harm_card, self.match.current_player.played_stack)
+
+    def test_two_chips_less_on_opponent(self) -> None:
+        self.match.play_card(HARM)
+        self.assertEqual(len(self.match.next_player.chip_stack), 8)
+
+    def test_over_if_two_chips_on_opponent_after_harm(self) -> None:
+        self.match.next_player.chip_stack.clear()
+        self.match.next_player.chip_stack.extend([objects.Chip()]*2)
+        with self.assertRaises(objects.GameOverError):
+            self.match.play_card(HARM)
+
+    def test_over_if_one_chip_on_opponent_after_harm(self) -> None:
+        self.match.next_player.chip_stack.clear()
+        self.match.next_player.chip_stack.append(objects.Chip())
+        with self.assertRaises(objects.GameOverError):
+            self.match.play_card(HARM)
+
+    def test_over_if_no_chip_on_opponent_after_harm(self) -> None:
+        self.match.next_player.chip_stack.clear()
+        with self.assertRaises(objects.GameOverError):
+            self.match.play_card(HARM)
+
+    def test_over_if_one_chip_on_opponent_after_drain(self) -> None:
+        self.match.next_player.chip_stack.clear()
+        self.match.next_player.chip_stack.append(objects.Chip())
+        with self.assertRaises(objects.GameOverError):
+            self.match.play_card(DRAIN)
+
+    def test_over_if_no_chip_on_opponent_after_drain(self) -> None:
+        self.match.next_player.chip_stack.clear()
+        with self.assertRaises(objects.GameOverError):
+            self.match.play_card(DRAIN)
+
+    def test_over_if_no_playable_card_on_opponent_after_kill(self) -> None:
+        self.match.next_player.played_stack.clear()
+        self.match.next_player.life_stack.clear()
+        self.match.next_player.hand.clear()
+        with self.assertRaises(objects.GameOverError):
+            self.match.play_card(KILL)
+
+    def test_over_if_one_playable_card_on_opponent_after_kill(self) -> None:
+        self.match.next_player.played_stack.clear()
+        self.match.next_player.life_stack.clear()
+        self.match.next_player.hand.clear()
+        self.match.next_player.played_stack.append(self.harm_card)
+        with self.assertRaises(objects.GameOverError):
+            self.match.play_card(KILL)
+
+
 if __name__ == '__main__':
     unittest.main()
