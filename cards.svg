@@ -25,9 +25,9 @@
      borderopacity="1"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.53"
-     inkscape:cx="1310.1792"
-     inkscape:cy="366.09642"
+     inkscape:zoom="0.74953319"
+     inkscape:cx="441.28359"
+     inkscape:cy="315.18151"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -203,7 +203,7 @@
            x="147.16982"
            y="294.6442"
            style="font-size:20px;" /></flowRegion><flowPara
-         id="flowPara1921"></flowPara></flowRoot>    <flowRoot
+         id="flowPara1921" /></flowRoot>    <flowRoot
        xml:space="preserve"
        id="flowRoot1923"
        style="fill:black;fill-opacity:1;stroke:none;font-family:'Cambria Math';font-style:normal;font-weight:normal;font-size:4.23333333px;line-height:1.25;letter-spacing:0px;word-spacing:0px;-inkscape-font-specification:'Cambria Math';font-stretch:normal;font-variant:normal;"><flowRegion
@@ -215,7 +215,7 @@
            x="158.76549"
            y="271.3757"
            style="font-size:4.23333333px;" /></flowRegion><flowPara
-         id="flowPara1929"></flowPara></flowRoot>    <flowRoot
+         id="flowPara1929" /></flowRoot>    <flowRoot
        xml:space="preserve"
        id="flowRoot1931"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
@@ -384,7 +384,7 @@
            height="150.94342"
            width="148.42078"
            id="rect2009" /></flowRegion><flowPara
-         id="flowPara2013">Move a Card from Opponent Life Stack to Opponent Death Stack.</flowPara></flowRoot>    <text
+         id="flowPara2013">Move a Card from Opponent Played Stack to Opponent Death Stack.</flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.88493156px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';letter-spacing:0px;word-spacing:0px;fill:#8734a9;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
        x="168.21149"

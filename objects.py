@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import no_type_check, Any
+from typing import no_type_check, Union
 import abc
 import collections
 import dataclasses
@@ -14,8 +14,8 @@ class Chip:
 
 
 class Stack(collections.deque):
-    def popindex(self, index: int) -> Any:
-        item = self[index]
+    def pop_from(self, index: int) -> Union[Card, Chip]:
+        item: Union[Card, Chip] = self[index]
         del self[index]
         return item
 
@@ -24,18 +24,23 @@ class Turn(collections.deque):
     pass
 
 
-def _make_chip_stack() -> Stack:
+def new_chip_stack() -> Stack:
     return Stack(Chip() for _ in range(10))
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(repr=False, frozen=True)
 class Character:
     name: str
     life_stack: Stack = dataclasses.field(default_factory=Stack)
-    chip_stack: Stack = dataclasses.field(default_factory=_make_chip_stack)
+    chip_stack: Stack = dataclasses.field(default_factory=new_chip_stack)
     death_stack: Stack = dataclasses.field(default_factory=Stack)
     played_stack: Stack = dataclasses.field(default_factory=Stack)
     hand: Stack = dataclasses.field(default_factory=Stack)
+
+    @no_type_check
+    def new_card_stack(self, other: Character) -> None:
+        classes = [Heal, Harm, Drain, Revive, Expand, Kill, Crop]*2
+        self.life_stack.extend([card(self, other) for card in classes])
 
 
 class Card(abc.ABC):
@@ -122,7 +127,7 @@ class Expand(Card):
 
 @dataclasses.dataclass
 class Kill(Card):
-    """Move a Card from Opponent Life Stack to Opponent Death Stack."""
+    """Move a Card from Opponent Played Stack to Opponent Death Stack."""
 
     player: Character
     opponent: Character
@@ -145,38 +150,36 @@ class Crop(Card):
         self.name = "Crop"
 
     def play(self, index: int=0) -> None:
-        self.opponent.life_stack.append(self.opponent.hand.popindex(index))
+        self.opponent.life_stack.append(self.opponent.hand.pop_from(index))
 
 
 @dataclasses.dataclass
 class Match:
-    player1: Character
-    player2: Character
+    player_1: Character
+    player_2: Character
     turns: Turn = dataclasses.field(init=False)
 
-    def initialize(self) -> None:
-        self.shuffle_each_life_stack()
-        self.fill_each_hand()
+    def __post_init__(self) -> None:
+        self.fill_players_life_stack()
+        self.shuffle_life_stacks()
+        self.fill_hands()
         self.shuffle_players()
 
-    @no_type_check
-    def shuffle_each_life_stack(self) -> None:
-        random.shuffle(self.player1.life_stack)
-        random.shuffle(self.player2.life_stack)
+    def fill_players_life_stack(self) -> None:
+        self.player_1.new_card_stack(self.player_2)
+        self.player_2.new_card_stack(self.player_1)
 
-    def fill_each_hand(self) -> None:
-        for _ in range(5):
-            self.player1.hand.append(self.player1.life_stack.pop())
-            self.player2.hand.append(self.player2.life_stack.pop())
+    @no_type_check
+    def shuffle_life_stacks(self) -> None:
+        random.shuffle(self.player_1.life_stack)
+        random.shuffle(self.player_2.life_stack)
+
+    def fill_hands(self) -> None:
+        for _ in range(4):
+            self.player_1.hand.append(self.player_1.life_stack.pop())
+            self.player_2.hand.append(self.player_2.life_stack.pop())
 
     @no_type_check
     def shuffle_players(self) -> None:
-        self.turns = Turn(maxlen=2)
-        self.turns.extend((self.player1, self.player2))
+        self.turns = Turn([self.player_1, self.player_2], maxlen=2)
         random.shuffle(self.turns)
-
-
-@no_type_check
-def new_stack(player: Character, opponent: Character) -> Stack:
-    classes = [Heal, Harm, Drain, Revive, Expand, Kill, Crop]*2
-    return Stack([card(player, opponent) for card in classes])

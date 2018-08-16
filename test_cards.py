@@ -31,8 +31,16 @@ class TurnSuite(unittest.TestCase):
 
 
 class CharacterSuite(unittest.TestCase):
-    def test_player(self) -> None:
-        player = objects.Character(name="User")
+    def setUp(self) -> None:
+        self.player = objects.Character("Player")
+        self.other = objects.Character("Opponent")
+
+    def test_instance(self) -> None:
+        self.assertIsInstance(self.player, objects.Character)
+
+    def test_new_car_stack_method(self) -> None:
+        self.player.new_card_stack(self.other)
+        self.assertEqual(len(self.player.life_stack), 14)
 
 
 class BaseCardSuite(unittest.TestCase):
@@ -43,10 +51,6 @@ class BaseCardSuite(unittest.TestCase):
         self.player = objects.Character(name="Player")
         self.opponent = objects.Character(name="Opponent")
 
-    def tearDown(self) -> None:
-        del self.player
-        del self.opponent
-
 
 class HealSuite(BaseCardSuite):
     heal_card: objects.Heal
@@ -55,10 +59,6 @@ class HealSuite(BaseCardSuite):
         super().setUp()
         self.heal_card = objects.Heal(
             player=self.player, opponent=self.opponent)
-
-    def tearDown(self) -> None:
-        super().tearDown()
-        del self.heal_card
 
     def test_heal_instance(self) -> None:
         self.assertIsInstance(self.heal_card, objects.Heal)
@@ -85,10 +85,6 @@ class HarmSuite(BaseCardSuite):
         self.harm_card = objects.Harm(
             player=self.player, opponent=self.opponent)
 
-    def tearDown(self) -> None:
-        super().tearDown()
-        del self.harm_card
-
     def test_harm_instance(self) -> None:
         self.assertIsInstance(self.harm_card, objects.Harm)
 
@@ -113,10 +109,6 @@ class DrainSuite(BaseCardSuite):
         super().setUp()
         self.drain_card = objects.Drain(
             player=self.player, opponent=self.opponent)
-
-    def tearDown(self) -> None:
-        super().tearDown()
-        del self.drain_card
 
     def test_absorb_instance(self) -> None:
         self.assertIsInstance(self.drain_card, objects.Drain)
@@ -146,10 +138,6 @@ class ExpandSuite(BaseCardSuite):
         self.expand_card = objects.Expand(
             player=self.player, opponent=self.opponent)
 
-    def tearDown(self) -> None:
-        super().tearDown()
-        del self.expand_card
-
     def test_expand_instance(self) -> None:
         self.assertIsInstance(self.expand_card, objects.Expand)
 
@@ -177,10 +165,6 @@ class ReviveSuite(BaseCardSuite):
         super().setUp()
         self.revive_card = objects.Revive(
             player=self.player, opponent=self.opponent)
-
-    def tearDown(self) -> None:
-        super().tearDown()
-        del self.revive_card
 
     def test_revive_instance(self) -> None:
         self.assertIsInstance(self.revive_card, objects.Revive)
@@ -213,10 +197,6 @@ class CropSuite(BaseCardSuite):
         self.crop_card = objects.Crop(
             player=self.player, opponent=self.opponent)
 
-    def tearDown(self) -> None:
-        super().tearDown()
-        del self.crop_card
-
     def test_crop_instance(self) -> None:
         self.assertIsInstance(self.crop_card, objects.Crop)
 
@@ -247,10 +227,6 @@ class KillSuite(BaseCardSuite):
         self.kill_card = objects.Kill(
             player=self.player, opponent=self.opponent)
 
-    def tearDown(self) -> None:
-        super().tearDown()
-        del self.kill_card
-
     def test_kill_instance(self) -> None:
         self.assertIsInstance(self.kill_card, objects.Kill)
 
@@ -259,7 +235,7 @@ class KillSuite(BaseCardSuite):
 
     def test_kill_description(self) -> None:
         self.assertEqual(self.kill_card.__doc__,
-           "Move a Card from Opponent Life Stack to Opponent Death Stack.")
+           "Move a Card from Opponent Played Stack to Opponent Death Stack.")
 
     def test_kill_a_card_from_opponent(self) -> None:
         card = objects.Harm(player=self.player, opponent=self.opponent)
@@ -273,35 +249,44 @@ class KillSuite(BaseCardSuite):
                          len_opponent_death_stack + 1)
 
 
-@unittest.skip("Not implemented yet")
 class MatchSuite(unittest.TestCase):
     match: objects.Match
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        player1 = objects.Character(name="player1")
-        player2 = objects.Character(name="player2")
-        cls.match = objects.Match(player1=player1, player2=player2)
-        cls.match.shuffle_players = mock.Mock(
-            side_effect=cls.match.shuffle_players)
-        cls.match.shuffle_each_life_stack = mock.Mock(
-            side_effect=cls.match.shuffle_each_life_stack)
-        cls.match.initialize()
+    def assertStackNotEqual(self,
+                            first: objects.Stack,
+                            second: objects.Stack
+                            ) -> None:
+        if len(first) == len(second) \
+        and all(type(f) == type(s) for f, s in zip(first, second)):
+            raise AssertionError(f"first is equal to second")
+
+    def setUp(self) -> None:
+        player_1 = objects.Character(name="player_1")
+        player_2 = objects.Character(name="player_2")
+        self.match = objects.Match(player_1=player_1, player_2=player_2)
 
     def test_oponents(self) -> None:
-        self.assertIsInstance(self.match.player1, objects.Character)
-        self.assertIsInstance(self.match.player2, objects.Character)
+        self.assertIsInstance(self.match.player_1, objects.Character)
+        self.assertIsInstance(self.match.player_2, objects.Character)
 
-    def test_shuffle_each_card(self) -> None:
-        self.match.shuffle_each_life_stack.assert_called()
+    def test_life_stacks(self) -> None:
+        self.assertEqual(len(self.match.player_1.life_stack), 10)
+        self.assertEqual(len(self.match.player_2.life_stack), 10)
+
+    def test_shuffle_life_stacks(self) -> None:
+        self.assertStackNotEqual(self.match.player_1.hand,
+                                self.match.player_2.hand)
+        self.assertStackNotEqual(self.match.player_1.life_stack,
+                                self.match.player_2.life_stack)
 
     def test_hand_size(self) -> None:
-        self.assertEqual(len(self.match.player1.hand), 5)
-        self.assertEqual(len(self.match.player2.hand), 5)
+        self.assertEqual(len(self.match.player_1.hand), 4)
+        self.assertEqual(len(self.match.player_2.hand), 4)
 
     def test_player_order_shuffle(self) -> None:
+        self.match.shuffle_players = mock.Mock()
+        self.match.__post_init__()
         self.match.shuffle_players.assert_called()
-        self.assertEqual(len(self.match.turns), 2)
 
 
 if __name__ == '__main__':

@@ -141,17 +141,20 @@ def new_move_card(owner1, stack1, owner2, stack2):
         power += 1
 
     description = f"{owner1:>8} {stack1:<6} -> {owner2:>8} {stack2:<6}\n"
-
     return power, description
 
 
 def move_cards():
     OWNERS = ["Player", "Opponent"]
-    STACKS = ["Death", "Life", "Hand"]
+    STACKS = ["Death", "Life", "Hand", "Played"]
     PRODUCT = itertools.product(OWNERS, STACKS, OWNERS, STACKS)
     for owner1, stack1, owner2, stack2 in PRODUCT:
         power, description = new_move_card(owner1, stack1, owner2, stack2)
-        if power == 1:
+        if power == 1 \
+        and not (stack1 == "Played" and stack2 == "Hand") \
+        and not (stack1 == "Hand" and stack2 == "Played") \
+        and not (stack1 == "Life" and stack2 == "Death") \
+        and not (stack1 == "Death" and stack2 == "Played"):
             yield f"{power:<+3} {description}"
 
 
