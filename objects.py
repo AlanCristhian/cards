@@ -234,7 +234,16 @@ class MatchLoop(Match):
         self.turns.reverse()
 
     def add_card_to_current_player(self) -> None:
-        self.current_player.hand.append(self.current_player.life_stack.pop())
+        if self.current_player.life_stack:
+            self.current_player.hand.append(
+                self.current_player.life_stack.pop())
+        elif self.current_player.played_stack:
+            self.current_player.played_stack.reverse()
+            self.current_player.life_stack.extend(
+                self.current_player.played_stack)
+            self.current_player.played_stack.clear()
+            self.current_player.hand.append(
+                self.current_player.life_stack.pop())
 
     def play_card(self, index: int) -> None:
         card = self.current_player.hand.pop_from(index)

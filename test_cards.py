@@ -309,6 +309,25 @@ class MatchLoopSuite(unittest.TestCase):
         self.assertEqual(len(self.match.current_player.hand), 5)
         self.assertEqual(len(self.match.current_player.life_stack), 9)
 
+    def test_card_from_played_to_life_if_card_on_played(self) -> None:
+        self.match.switch_player()
+        card = self.match.current_player.life_stack.pop()
+        self.match.current_player.played_stack.append(card)
+        self.match.current_player.life_stack.clear()
+        self.match.add_card_to_current_player()
+        self.assertEqual(len(self.match.current_player.hand), 5)
+        self.assertEqual(len(self.match.current_player.life_stack), 0)
+        self.assertEqual(len(self.match.current_player.played_stack), 0)
+        self.assertIn(card, self.match.current_player.hand)
+
+    def test_no_add_card_to_hand_if_no_played_and_no_life(self) -> None:
+        self.match.switch_player()
+        self.match.current_player.life_stack.clear()
+        self.match.add_card_to_current_player()
+        self.assertEqual(len(self.match.current_player.hand), 4)
+        self.assertEqual(len(self.match.current_player.life_stack), 0)
+        self.assertEqual(len(self.match.current_player.played_stack), 0)
+
 
 HARM = 0
 DRAIN = 1
